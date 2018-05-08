@@ -1,7 +1,7 @@
 # Kermie - a Watson Assistant application
 
 Link to our hosted/running Bot:
-http://trunkbot-kermie.mybluemix.net/
+http://trunkbot-landlord-kermie.mybluemix.net/
 
 
 To start, please go to the following link (setting up an account if required) and reading through it
