@@ -1,6 +1,6 @@
 ---
 applications:
-- name: TrunkBot-Kermie
+- name: TrunkBot-Landlord-Kermie
   command: npm start
   path: .
   memory: 256M
