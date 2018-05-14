@@ -57,9 +57,64 @@ app.post('/api/message', function(req, res) {
     if (err) {
       return res.status(err.code || 500).json(err);
     }
+
     return res.json(updateMessage(payload, data));
   });
 });
+
+/*
+*  Custom intent processing on the server
+*/
+function processIntents(payload, data) {
+  var intent = getHighestConfidenceIntent(data['intents']);
+  var message = null;
+
+  // Switch over the various cases for handled intents
+  switch(intent){
+    case 'imagetest':
+      message = getImageTestMsg();
+      break;
+    case 'videotest':
+      message = getVideoTestMsg();
+      break;
+  }
+
+  return message;
+}
+
+function getImageTestMsg() {
+  return '<img src="https://vignette.wikia.nocookie.net/hmwikia/images/1/11/Cow_tott.jpg/revision/latest?cb=20160114034237" alt="Mountain View">';
+}
+
+function getVideoTestMsg() {
+  return '<iframe width="100%" height="250px" src="https://www.youtube.com/embed/ryyPW754sJQ?rel=0&amp;showinfo=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+}
+
+/*
+  * Loop over all intents found by Watson and return the
+  * intent we're most confident the user put forward
+  */
+function getHighestConfidenceIntent(intentList) {
+  var confidence = 0;
+  var currConfidence = 0;
+  var intent = null;
+
+  for(var i = 0; i < intentList.length; i++){
+    // get confidence of current intent we're looking at
+    currConfidence = intentList[i].confidence;
+    // if it's confidence 1, we don't need to bother looking
+    // at any other intents returned, this is the one we want
+    if(currConfidence == 1){
+      intent = intentList[i].intent;
+      break;
+    }
+    // update highest confidence intent
+    if(currConfidence > confidence){
+      intent = intentList[i].intent;
+    }
+  }
+  return intent;
+}
 
 /**
  * Updates the response text using the intent confidence
@@ -69,6 +124,13 @@ app.post('/api/message', function(req, res) {
  */
 function updateMessage(input, response) {
   var responseText = null;
+
+  var msg = processIntents(input, response);
+  if(msg != null){
+    response.output.text = msg;
+    return response;
+  }  
+
   if (!response.output) {
     response.output = {};
   } else {
