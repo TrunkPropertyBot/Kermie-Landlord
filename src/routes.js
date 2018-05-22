@@ -22,7 +22,10 @@ module.exports = (app, assistant) => {
       if (err) {
         return res.status(err.code || 500).json(err);
       }
-      return res.json(dialogEngine.updateMessage(payload, data));
+      let response = dialogEngine.updateMessage(payload, data)
+        .then((responseData) => {
+          return res.json(responseData);
+        })
     });
   });
 

@@ -1,9 +1,9 @@
 const priceFinder = require('./priceFinder');
 
-const updateMessage = (input, response) => {
+const updateMessage = async (input, response) => {
   var responseText = null;
 
-  var msg = processIntents(input, response);
+  var msg = await processIntents(input, response);
   if(msg != null){
     response.output.text = msg;
     return response;
@@ -33,8 +33,9 @@ const updateMessage = (input, response) => {
   return response;
 }
 
-const processIntents = (payload, data) => {
+const processIntents = async (payload, data) => {
   var intent = getHighestConfidenceIntent(data['intents']);
+  var conversationNode = payload.context.system.dialog_stack[0].dialog_node;
   var message = null;
 
   // Switch over the various cases for handled intents
@@ -45,8 +46,18 @@ const processIntents = (payload, data) => {
     case 'videotest':
       message = getVideoTestMsg();
       break;
-    case 'getproperty':
+  }
 
+  switch(conversationNode){
+    case 'node_1_1526965376608':
+      let property = await priceFinder.suggestProperty(data.input.text);
+      if( property.matches.length > 0) {
+        message = 'We found the property';
+      }
+      else{
+        message = 'No property found for this address';
+      }
+      break;
   }
 
   return message;
