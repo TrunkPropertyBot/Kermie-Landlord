@@ -1,9 +1,5 @@
-/**
- * Updates the response text using the intent confidence
- * @param  {Object} input The request to the Assistant service
- * @param  {Object} response The response from the Assistant service
- * @return {Object}          The response with the updated message
- */
+const priceFinder = require('./priceFinder');
+
 const updateMessage = (input, response) => {
   var responseText = null;
 
@@ -37,7 +33,7 @@ const updateMessage = (input, response) => {
   return response;
 }
 
-function processIntents (payload, data) {
+const processIntents = (payload, data) => {
   var intent = getHighestConfidenceIntent(data['intents']);
   var message = null;
 
@@ -49,6 +45,8 @@ function processIntents (payload, data) {
     case 'videotest':
       message = getVideoTestMsg();
       break;
+    case 'getproperty':
+
   }
 
   return message;
@@ -66,7 +64,7 @@ function getVideoTestMsg() {
   * Loop over all intents found by Watson and return the
   * intent we're most confident the user put forward
   */
-function getHighestConfidenceIntent(intentList) {
+const getHighestConfidenceIntent = (intentList) => {
   var confidence = 0;
   var currConfidence = 0;
   var intent = null;
