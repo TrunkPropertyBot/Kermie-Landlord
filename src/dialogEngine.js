@@ -36,8 +36,8 @@ const updateMessage = async (input, response) => {
 const processIntents = async (payload, data) => {
   var intent = getHighestConfidenceIntent(data['intents']);
   let conversationNode = null;
-  if ( payload.context.system ) {
-    conversationNode = payload.context.system.dialog_stack[0].dialog_node;
+  if ( data.output.nodes_visited ) {
+    conversationNode = data.output.nodes_visited[0];
   }
   var message = null;
 
@@ -52,7 +52,7 @@ const processIntents = async (payload, data) => {
   }
 
   switch(conversationNode){
-    case 'node_1_1526965376608':
+    case 'node_2_1526965411734':
       let property = await priceFinder.suggestProperty(data.input.text);
       if( property.matches.length > 0) {
         message = 'We found the property';
