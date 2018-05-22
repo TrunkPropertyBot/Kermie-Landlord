@@ -35,7 +35,10 @@ const updateMessage = async (input, response) => {
 
 const processIntents = async (payload, data) => {
   var intent = getHighestConfidenceIntent(data['intents']);
-  var conversationNode = payload.context.system.dialog_stack[0].dialog_node;
+  let conversationNode = null;
+  if ( payload.context.system ) {
+    conversationNode = payload.context.system.dialog_stack[0].dialog_node;
+  }
   var message = null;
 
   // Switch over the various cases for handled intents
