@@ -1,6 +1,6 @@
 {
   "name": "assistant-simple",
-  "description": "A simple Node.js based web app which shows how to use the Watson Assistant API to recognize user intents.",
+  "description": "A landlord bot, assisting you with all your real estate queries!",
   "version": "0.1.1",
   "main": "server.js",
   "scripts": {
