@@ -22,6 +22,28 @@ const suggestProperty = async (address) => {
   }
 }
 
+const getPropertyFeature = async(propertyId)=>{
+  let repsonse;
+  try {
+    response = await api.get(`/properties/${propertyId}`);
+    return response.data.features;
+  } catch(e) {
+    throw new Error(e);
+  }
+}
+
+const getPropertyImage = async (propertyId) => {
+  let repsonse;
+  try {
+    response = await api.get(`/properties/${propertyId}/images/main`);
+    return response.data._self;
+  } catch(e) {
+    throw new Error(e);
+  }
+}
+
 module.exports = {
   suggestProperty,
+  getPropertyImage,
+  getPropertyFeature,
 }
