@@ -42,8 +42,19 @@ const suburbRent = async (suburbID) => {
   }
 }
 
+const getPropertyImage = async (propertyId) => {
+  let response;
+  try {
+    response = await api.get(`/properties/${propertyId}/images/main`);
+    return response.data._self;
+  } catch(e) {
+    throw new Error(e);
+  }
+}
+
 module.exports = {
   suggestProperty,
   suggestSuburb,
   suburbRent,
+  getPropertyImage,
 }

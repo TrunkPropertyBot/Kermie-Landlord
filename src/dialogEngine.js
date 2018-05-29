@@ -4,7 +4,7 @@ const updateMessage = async (input, response) => {
   var responseText = null;
 
   var msg = await processIntents(input, response);
-  if(msg != null){
+  if (msg != null) {
     response.output.text = msg;
     return response;
   }
@@ -42,7 +42,7 @@ const processIntents = async (payload, data) => {
   var message = null;
 
   // Switch over the various cases for handled intents
-  switch(intent){
+  switch (intent) {
     case 'imagetest':
       message = getImageTestMsg();
       break;
@@ -51,47 +51,54 @@ const processIntents = async (payload, data) => {
       break;
   }
 
-  switch(conversationNode){
+  switch (conversationNode) {
     case 'node_14_1527147231149':
       let property = await priceFinder.suggestProperty(data.context.address);
-      if(property.matches.length > 0) {
+      if (property.matches.length > 0) {
         data.context.currentContext = "addressFound";
         data.context.address = property.matches[0].display;
-      }
-      else{
+        data.context.propertyID = property.matches[0].property.id;
+      } else {
         data.context.currentContext = "addressNotFound";
       }
       break;
   }
 
-  switch(conversationNode){
-    case 'node_2_1526279319525':
-    let suburb = await priceFinder.suggestSuburb(data.context.suburb);
-      if(suburb.matches.length > 0) {
-        data.context.currentContext = "suburbFound";
-        data.context.suburbID = suburb.matches[0].suburb.id;
-        data.context.suburb = suburb.matches[0].display;
-      }
-      else{
-        data.context.currentContext = "suburbNotFound";
-      }
+  switch (conversationNode) {
+    case 'node_9_1527129120120':
+      let mainImage = await priceFinder.getPropertyImage(data.context.propertyID);
+      var defaultAppend = `?access_token=${process.env.PRICEFINDER_TOKEN}&height=400&width=400`;
+      var imageFullUrl = mainImage + defaultAppend;
+      message = data.context.holdMSG+'<img src=' + imageFullUrl + ' alt=' + data.context.address + '>';
       break;
   }
 
-  switch(conversationNode){
-          case 'node_3_1527477230991':
-          let rentSuburb = await priceFinder.suburbRent(data.context.suburbID);
-          message = "The estimated rent in " +data.context.suburb+ " is roughly " +rentSuburb.house.medianRentalPrice+" per week.";
-          break;
+  switch (conversationNode) {
+    case 'node_2_1526279319525':
+      let suburb = await priceFinder.suggestSuburb(data.context.suburb);
+      if (suburb.matches.length > 0) {
+        data.context.currentContext = "suburbFound";
+        data.context.suburbID = suburb.matches[0].suburb.id;
+        data.context.suburb = suburb.matches[0].display;
+      } else {
+        data.context.currentContext = "suburbNotFound";
+      }
+      break;
+
+
+    case 'node_3_1527477230991':
+      let rentSuburb = await priceFinder.suburbRent(data.context.suburbID);
+      data.context.suburbRent = rentSuburb.house.medianRentalPrice;
+      message = "The estimated rent in " + data.context.suburb + " is roughly $" + data.context.suburbRent + " per week.";
+      break;
   }
 
-  switch(conversationNode){
+  switch (conversationNode) {
     case 'node_1_1526963703574 ':
       let property = await priceFinder.suggestProperty(data.input.text);
-      if(property.matches.length > 0) {
+      if (property.matches.length > 0) {
         message = "address found";
-      }
-      else{
+      } else {
         message = "address not found";
       }
       break;
@@ -109,25 +116,25 @@ function getVideoTestMsg() {
 }
 
 /*
-  * Loop over all intents found by Watson and return the
-  * intent we're most confident the user put forward
-  */
+ * Loop over all intents found by Watson and return the
+ * intent we're most confident the user put forward
+ */
 const getHighestConfidenceIntent = (intentList) => {
   var confidence = 0;
   var currConfidence = 0;
   var intent = null;
 
-  for(var i = 0; i < intentList.length; i++){
+  for (var i = 0; i < intentList.length; i++) {
     // get confidence of current intent we're looking at
     currConfidence = intentList[i].confidence;
     // if it's confidence 1, we don't need to bother looking
     // at any other intents returned, this is the one we want
-    if(currConfidence == 1){
+    if (currConfidence == 1) {
       intent = intentList[i].intent;
       break;
     }
     // update highest confidence intent
-    if(currConfidence > confidence){
+    if (currConfidence > confidence) {
       intent = intentList[i].intent;
     }
   }
