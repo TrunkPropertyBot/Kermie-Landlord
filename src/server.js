@@ -1,4 +1,5 @@
 #!/usr/bin/env
+
 /**
  * Copyright 2015 IBM Corp. All Rights Reserved.
  *
@@ -17,10 +18,12 @@
 
 'use strict';
 
-require('dotenv').config({silent: true});
+require('dotenv').config({
+  silent: true
+});
 
 var server = require('./app');
-var port = process.env.PORT || process.env.VCAP_APP_PORT || 3000;
+var port = process.env.PORT || process.env.VCAP_APP_PORT || 8080;
 
 server.listen(port, function() {
   // eslint-disable-next-line

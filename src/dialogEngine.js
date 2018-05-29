@@ -7,7 +7,7 @@ const updateMessage = async (input, response) => {
   if(msg != null){
     response.output.text = msg;
     return response;
-  }  
+  }
 
   if (!response.output) {
     response.output = {};
@@ -36,8 +36,8 @@ const updateMessage = async (input, response) => {
 const processIntents = async (payload, data) => {
   var intent = getHighestConfidenceIntent(data['intents']);
   let conversationNode = null;
-  if ( payload.context.system ) {
-    conversationNode = payload.context.system.dialog_stack[0].dialog_node;
+  if (data.output.nodes_visited) {
+    conversationNode = data.output.nodes_visited[0];
   }
   var message = null;
 
@@ -52,13 +52,47 @@ const processIntents = async (payload, data) => {
   }
 
   switch(conversationNode){
-    case 'node_1_1526965376608':
-      let property = await priceFinder.suggestProperty(data.input.text);
-      if( property.matches.length > 0) {
-        message = 'We found the property';
+    case 'node_14_1527147231149':
+      let property = await priceFinder.suggestProperty(data.context.address);
+      if(property.matches.length > 0) {
+        data.context.currentContext = "addressFound";
+        data.context.address = property.matches[0].display;
       }
       else{
-        message = 'No property found for this address';
+        data.context.currentContext = "addressNotFound";
+      }
+      break;
+  }
+
+  switch(conversationNode){
+    case 'node_2_1526279319525':
+    let suburb = await priceFinder.suggestSuburb(data.context.suburb);
+      if(suburb.matches.length > 0) {
+        data.context.currentContext = "suburbFound";
+        data.context.suburbID = suburb.matches[0].suburb.id;
+        data.context.suburb = suburb.matches[0].display;
+      }
+      else{
+        data.context.currentContext = "suburbNotFound";
+      }
+      break;
+  }
+
+  switch(conversationNode){
+          case 'node_3_1527477230991':
+          let rentSuburb = await priceFinder.suburbRent(data.context.suburbID);
+          message = "The estimated rent in " +data.context.suburb+ " is roughly " +rentSuburb.house.medianRentalPrice+" per week.";
+          break;
+  }
+
+  switch(conversationNode){
+    case 'node_1_1526963703574 ':
+      let property = await priceFinder.suggestProperty(data.input.text);
+      if(property.matches.length > 0) {
+        message = "address found";
+      }
+      else{
+        message = "address not found";
       }
       break;
   }

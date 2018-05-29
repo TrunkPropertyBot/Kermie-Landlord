@@ -23,7 +23,7 @@ const watson = require('watson-developer-cloud'); // watson sdk
 let app = express();
 
 // Bootstrap application settings
-app.use(express.static('./public')); // load UI from public folder
+app.use(express.static('../public')); // load UI from public folder
 app.use(bodyParser.json());
 
 const assistant = new watson.AssistantV1({
