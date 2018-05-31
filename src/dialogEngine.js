@@ -70,13 +70,13 @@ const processIntents = async (payload, data) => {
         message = "I'm sorry that I could not find a property at the address you given. Would you like to estimate the rent by the suburb instead?";
       }
       break;
-
-    case 'node_9_1527129120120':
-      let mainImage = await priceFinder.getPropertyImage(data.context.propertyID);
-      var defaultAppend = `?access_token=${process.env.PRICEFINDER_TOKEN}&height=400&width=400`;
-      var imageFullUrl = mainImage + defaultAppend;
-      message = data.context.holdMSG + '<img src=' + imageFullUrl + ' alt=' + data.context.address + '>';
-      break;
+    // 
+    // case 'node_9_1527129120120':
+    //   let mainImage = await priceFinder.getPropertyImage(data.context.propertyID);
+    //   var defaultAppend = `?access_token=${process.env.PRICEFINDER_TOKEN}&height=400&width=400`;
+    //   var imageFullUrl = mainImage + defaultAppend;
+    //   message = data.context.holdMSG + '<img src=' + imageFullUrl + ' alt=' + data.context.address + '>';
+    //   break;
 
     case 'node_2_1526279319525':
       let suburb = await priceFinder.suggestSuburb(data.context.suburb);
