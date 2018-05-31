@@ -8,7 +8,7 @@ if (tokenStr === null) {
 
 const api = Axios.create({
   baseURL: 'https://api.pricefinder.com.au/v1',
-  timeout: '4000',
+  timeout: '60000',
   headers: {'Authorization' : `Bearer ${tokenStr}`}
 });
 
@@ -17,6 +17,16 @@ const suggestProperty = async (address) => {
   try {
     response = await api.get(`/suggest/properties?q=${address}`);
     return response.data;
+  } catch(e) {
+    throw new Error(e);
+  }
+}
+
+const getPropertyFeature = async(propertyId)=>{
+  let repsonse;
+  try {
+    response = await api.get(`/properties/${propertyId}`);
+    return response.data.features;
   } catch(e) {
     throw new Error(e);
   }
@@ -57,4 +67,5 @@ module.exports = {
   suggestSuburb,
   suburbRent,
   getPropertyImage,
+  getPropertyFeature
 }
