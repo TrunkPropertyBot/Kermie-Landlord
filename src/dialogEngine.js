@@ -4,10 +4,10 @@ const updateMessage = async (input, response) => {
   var responseText = null;
 
   var msg = await processIntents(input, response);
-  if(msg != null){
+  if (msg != null) {
     response.output.text = msg;
     return response;
-  }  
+  }
 
   if (!response.output) {
     response.output = {};
@@ -36,13 +36,13 @@ const updateMessage = async (input, response) => {
 const processIntents = async (payload, data) => {
   var intent = getHighestConfidenceIntent(data['intents']);
   let conversationNode = null;
-  if ( payload.context.system ) {
-    conversationNode = payload.context.system.dialog_stack[0].dialog_node;
+  if (data.output.nodes_visited) {
+    conversationNode = data.output.nodes_visited[0];
   }
   var message = null;
 
   // Switch over the various cases for handled intents
-  switch(intent){
+  switch (intent) {
     case 'imagetest':
       message = getImageTestMsg();
       break;
@@ -51,14 +51,77 @@ const processIntents = async (payload, data) => {
       break;
   }
 
-  switch(conversationNode){
-    case 'node_1_1526965376608':
-      let property = await priceFinder.suggestProperty(data.input.text);
-      if( property.matches.length > 0) {
-        message = 'We found the property';
+  switch (conversationNode) {
+    case 'node_14_1527147231149':
+    case 'node_1_1527765265584':
+      let property = await priceFinder.suggestProperty(data.context.address);
+      if (property.matches.length > 0) {
+        data.context.currentContext = "addressFound";
+        data.context.address = property.matches[0].display;
+        data.context.propertyID = property.matches[0].property.id;
+        Z_currentPropertyF = await priceFinder.getPropertyFeature(data.context.propertyID);
+          let mainImage = await priceFinder.getPropertyImage(data.context.propertyID);
+          var defaultAppend = `?access_token=${process.env.PRICEFINDER_TOKEN}&height=400&width=400`;
+          var imageFullUrl = mainImage + defaultAppend;
+          data.context.holdMSG = await data.context.holdMSG + " It is at "+data.context.address+". Is this the one you are looking for?"
+          message = data.context.holdMSG + '<img src=' + imageFullUrl + ' alt=' + data.context.address + '>';
+      } else {
+        data.context.currentContext = "addressNotFound";
+        message = "I'm sorry that I could not find a property at the address you given. Would you like to estimate the rent by the suburb instead?";
       }
-      else{
-        message = 'No property found for this address';
+      break;
+    // 
+    // case 'node_9_1527129120120':
+    //   let mainImage = await priceFinder.getPropertyImage(data.context.propertyID);
+    //   var defaultAppend = `?access_token=${process.env.PRICEFINDER_TOKEN}&height=400&width=400`;
+    //   var imageFullUrl = mainImage + defaultAppend;
+    //   message = data.context.holdMSG + '<img src=' + imageFullUrl + ' alt=' + data.context.address + '>';
+    //   break;
+
+    case 'node_2_1526279319525':
+      let suburb = await priceFinder.suggestSuburb(data.context.suburb);
+      if (suburb.matches.length > 0) {
+        data.context.currentContext = "suburbFound";
+        data.context.suburbID = await suburb.matches[0].suburb.id;
+        data.context.suburb = await suburb.matches[0].display;
+        let rentSuburb = await priceFinder.suburbRent(data.context.suburbID);
+        data.context.suburbRent = await rentSuburb.house.medianRentalPrice;
+        message = "The estimated rent in " + data.context.suburb + " is roughly $" + data.context.suburbRent + " per week.";
+      } else {
+        data.context.currentContext = "suburbNotFound";
+        message = "I can't find " +data.context.suburb+ " in my suburb list. I don't think it's a suburb, at least, not one I'm currently aware about. Please give me the suburb of the property again.";
+      }
+      break;
+
+    case 'node_3_1527477230991':
+      let rentSuburb = await priceFinder.suburbRent(data.context.suburbID);
+      data.context.suburbRent = rentSuburb.house.medianRentalPrice;
+      message = "The estimated rent in " + data.context.suburb + " is roughly $" + data.context.suburbRent + " per week.";
+      break;
+
+    case 'node_1_1527664935076':
+    case 'node_1_1527769088378':
+      switch (intent) {
+        case 'bedrooms':
+          message = 'The property has ' + Z_currentPropertyF.bedrooms + ' bedrooms.';
+          break;
+        case 'bathrooms':
+          message = 'The property has ' + Z_currentPropertyF.bathrooms + ' bathrooms.';
+          break;
+        case 'carparking':
+          message = 'The property has ' + Z_currentPropertyF.carParks + ' carparks.';
+          break;
+      }
+      break;
+  }
+
+  switch (conversationNode) {
+    case 'node_1_1526963703574 ':
+      let property = await priceFinder.suggestProperty(data.input.text);
+      if (property.matches.length > 0) {
+        message = "address found";
+      } else {
+        message = "address not found";
       }
       break;
   }
@@ -75,25 +138,25 @@ function getVideoTestMsg() {
 }
 
 /*
-  * Loop over all intents found by Watson and return the
-  * intent we're most confident the user put forward
-  */
+ * Loop over all intents found by Watson and return the
+ * intent we're most confident the user put forward
+ */
 const getHighestConfidenceIntent = (intentList) => {
   var confidence = 0;
   var currConfidence = 0;
   var intent = null;
 
-  for(var i = 0; i < intentList.length; i++){
+  for (var i = 0; i < intentList.length; i++) {
     // get confidence of current intent we're looking at
     currConfidence = intentList[i].confidence;
     // if it's confidence 1, we don't need to bother looking
     // at any other intents returned, this is the one we want
-    if(currConfidence == 1){
+    if (currConfidence == 1) {
       intent = intentList[i].intent;
       break;
     }
     // update highest confidence intent
-    if(currConfidence > confidence){
+    if (currConfidence > confidence) {
       intent = intentList[i].intent;
     }
   }
