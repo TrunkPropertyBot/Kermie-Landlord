@@ -58,7 +58,7 @@ const getPropertyImage = async (propertyId) => {
     response = await api.get(`/properties/${propertyId}/images/main`);
     return response.data._self;
   } catch(e) {
-    throw new Error(e);
+    return;
   }
 }
 

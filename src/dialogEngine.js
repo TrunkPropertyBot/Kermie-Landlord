@@ -61,16 +61,21 @@ const processIntents = async (payload, data) => {
         data.context.propertyID = property.matches[0].property.id;
         Z_currentPropertyF = await priceFinder.getPropertyFeature(data.context.propertyID);
           let mainImage = await priceFinder.getPropertyImage(data.context.propertyID);
-          var defaultAppend = `?access_token=${process.env.PRICEFINDER_TOKEN}&height=400&width=400`;
-          var imageFullUrl = mainImage + defaultAppend;
-          data.context.holdMSG = await data.context.holdMSG + " It is at "+data.context.address+". Is this the one you are looking for?"
-          message = data.context.holdMSG + '<img src=' + imageFullUrl + ' alt=' + data.context.address + '>';
+          if(mainImage != undefined){
+            var defaultAppend = `?access_token=${process.env.PRICEFINDER_TOKEN}&height=400&width=400`;
+            var imageFullUrl = mainImage + defaultAppend;
+            data.context.holdMSG = await data.context.holdMSG + " It is at "+data.context.address+". Is this the one you are looking for?";
+            message = data.context.holdMSG + '<img src=' + imageFullUrl + ' alt=' + data.context.address + '>';
+          }else{
+            message = data.context.holdMSG = await data.context.holdMSG + " It is at "+data.context.address+
+            ". Is this the one you are looking for? I'm sorry but I could not find an image for this property";
+          }
       } else {
         data.context.currentContext = "addressNotFound";
         message = "I'm sorry that I could not find a property at the address you given. Would you like to estimate the rent by the suburb instead?";
       }
       break;
-    // 
+    //
     // case 'node_9_1527129120120':
     //   let mainImage = await priceFinder.getPropertyImage(data.context.propertyID);
     //   var defaultAppend = `?access_token=${process.env.PRICEFINDER_TOKEN}&height=400&width=400`;
@@ -103,13 +108,25 @@ const processIntents = async (payload, data) => {
     case 'node_1_1527769088378':
       switch (intent) {
         case 'bedrooms':
-          message = 'The property has ' + Z_currentPropertyF.bedrooms + ' bedrooms.';
+        if(Z_currentPropertyF.bedrooms != undefined){
+            message = 'The property has ' + Z_currentPropertyF.bedrooms + ' bedrooms.';
+        }else{
+          message = 'There is no information on how many bedrooms this property has';
+        }
           break;
         case 'bathrooms':
-          message = 'The property has ' + Z_currentPropertyF.bathrooms + ' bathrooms.';
+        if(Z_currentPropertyF.bathrooms != undefined){
+            message = 'The property has ' + Z_currentPropertyF.bathrooms + ' bathrooms.';
+        }else{
+          message = 'There is no information on how many bathrooms this property has';
+        }
           break;
         case 'carparking':
-          message = 'The property has ' + Z_currentPropertyF.carParks + ' carparks.';
+        if(Z_currentPropertyF.carParks != undefined){
+            message = 'The property has ' + Z_currentPropertyF.carParks + ' carparks.';
+        }else{
+          message = 'There is no information on how many carparks this property has';
+        }
           break;
       }
       break;
